@@ -1,0 +1,40 @@
+---
+steps:
+  - label: ':rainbow: :lemon: :pipeline: build the things'
+    command: 'make'
+    artifact_paths: '_build/simple*.tar.xz'
+    agents:
+      os: 'FreeBSD'
+      queue: 'ci'
+
+  - label: ':hourglass:'
+    wait:
+
+  - label: ':rainbow: :freebsd: :luggage: move artifact to package repo'
+    command: 'buildkite-agent artifact download _build/simple*.tar.xz /var/db/ci/pkg/ --build ${BUILDKITE_BUILD_ID}'
+    agents:
+      os: 'FreeBSD'
+      queue: 'ci'
+
+  - label: ':hourglass:'
+    wait:
+
+  - label: ':rainbow: :freebsd: :rocket: deploy to prod'
+    command: 'buildkite-agent artifact download _build/simple*.tar.xz /var/cache/pkg/ --build ${BUILDKITE_BUILD_ID}'
+    agents:
+      os: 'FreeBSD'
+      queue: 'indie'
+      box: 'f01'
+    if: build.branch == 'main'
+    concurrency: 1
+    concurrency_group: 'indie'
+
+  - label: ':rainbow: :freebsd: :rocket: deploy to prod'
+    command: 'buildkite-agent artifact download _build/simple*.tar.xz /var/cache/pkg/ --build ${BUILDKITE_BUILD_ID}'
+    agents:
+      os: 'FreeBSD'
+      queue: 'indie'
+      box: 'f02'
+    if: build.branch == 'main'
+    concurrency: 1
+    concurrency_group: 'indie'
