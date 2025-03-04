@@ -1,3 +1,3 @@
 # simple
 
-some ports are simpler than others
+Some ports are simpler than others.
